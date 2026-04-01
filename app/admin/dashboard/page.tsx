@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { requireStaff } from '@/lib/staff'
 import { createClient } from '@/lib/supabase/server'
 
@@ -8,6 +9,7 @@ export default async function AdminDashboardPage() {
     'use server'
     const supabase = await createClient()
     await supabase.auth.signOut()
+    redirect('/admin/login')
   }
 
   return (
