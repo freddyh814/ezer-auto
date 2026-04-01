@@ -26,7 +26,8 @@ export async function createStaffAccount(
     return { error: 'Unauthorized.' }
   }
 
-  const { name, email, password, role } = input
+  const { name, email: rawEmail, password, role } = input
+  const email = rawEmail.trim()
 
   // Basic validation
   if (!name.trim() || !email.trim() || !password || !role) {
@@ -67,7 +68,10 @@ export async function createStaffAccount(
 
   if (profileError) {
     // Roll back the auth user if profile creation fails
-    await admin.auth.admin.deleteUser(authData.user.id)
+    const { error: deleteError } = await admin.auth.admin.deleteUser(authData.user.id)
+    if (deleteError) {
+      return { error: 'Profile creation failed and auth user could not be rolled back. Contact support.' }
+    }
     return { error: 'Failed to create staff profile. Please try again.' }
   }
 
