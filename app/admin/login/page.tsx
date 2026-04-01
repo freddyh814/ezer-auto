@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { getStaffUser } from '@/lib/staff'
 import StaffLoginForm from './StaffLoginForm'
 
 export const metadata: Metadata = {
   title: 'Staff Login — Ezer Auto',
 }
 
-export default function StaffLoginPage() {
+export default async function StaffLoginPage() {
+  const staff = await getStaffUser()
+  if (staff) redirect('/admin/dashboard')
+
   return (
     <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">

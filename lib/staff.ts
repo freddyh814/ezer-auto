@@ -15,8 +15,10 @@ export async function getStaffUser(): Promise<StaffUser | null> {
 
   if (!profile || !profile.is_active) return null
 
+  if (!user.email) return null
+
   return {
-    user: { id: user.id, email: user.email! },
+    user: { id: user.id, email: user.email },
     profile,
   }
 }

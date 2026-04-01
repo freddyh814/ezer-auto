@@ -1,11 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { staffLogin } from '@/app/actions/auth'
 
 export default function StaffLoginForm() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,41 +14,13 @@ export default function StaffLoginForm() {
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
+    const result = await staffLogin(email, password)
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (signInError || !data.user) {
-      setError('Invalid email or password.')
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
-      return
     }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('staff_profiles')
-      .select('id, role, is_active')
-      .eq('user_id', data.user.id)
-      .single()
-
-    if (profileError || !profile) {
-      await supabase.auth.signOut()
-      setError('No staff account found for this email.')
-      setLoading(false)
-      return
-    }
-
-    if (!profile.is_active) {
-      await supabase.auth.signOut()
-      setError('Your account has been deactivated. Contact your administrator.')
-      setLoading(false)
-      return
-    }
-
-    router.push('/admin/dashboard')
-    router.refresh()
+    // On success, staffLogin redirects server-side; component unmounts.
   }
 
   return (

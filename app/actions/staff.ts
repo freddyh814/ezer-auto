@@ -26,11 +26,12 @@ export async function createStaffAccount(
     return { error: 'Unauthorized.' }
   }
 
-  const { name, email: rawEmail, password, role } = input
+  const { name: rawName, email: rawEmail, password, role } = input
+  const name = rawName.trim()
   const email = rawEmail.trim()
 
   // Basic validation
-  if (!name.trim() || !email.trim() || !password || !role) {
+  if (!name || !email || !password || !role) {
     return { error: 'All fields are required.' }
   }
   if (password.length < 8) {
@@ -61,7 +62,7 @@ export async function createStaffAccount(
     .from('staff_profiles')
     .insert({
       user_id: authData.user.id,
-      name: name.trim(),
+      name,
       role,
       is_active: true,
     })
