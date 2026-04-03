@@ -23,24 +23,32 @@ export default function InventoryClient({ vehicles, makes }: Props) {
     return all
   }, [vehicles])
 
-  const filtered = useMemo(() => {
-    return vehicles.filter((v) => {
-      if (make && v.make !== make) return false
-      if (minYear && v.year < parseInt(minYear)) return false
-      if (maxYear && v.year > parseInt(maxYear)) return false
-      if (maxPrice && v.price > parseInt(maxPrice)) return false
-      if (search) {
-        const q = search.toLowerCase()
-        return (
-          v.make.toLowerCase().includes(q) ||
-          v.model.toLowerCase().includes(q) ||
-          String(v.year).includes(q) ||
-          (v.description?.toLowerCase().includes(q) ?? false)
-        )
-      }
-      return true
-    })
-  }, [vehicles, make, minYear, maxYear, maxPrice, search])
+  const matchesFilters = (v: (typeof vehicles)[0]) => {
+    if (make && v.make !== make) return false
+    if (minYear && v.year < parseInt(minYear)) return false
+    if (maxYear && v.year > parseInt(maxYear)) return false
+    if (maxPrice && v.price > parseInt(maxPrice)) return false
+    if (search) {
+      const q = search.toLowerCase()
+      return (
+        v.make.toLowerCase().includes(q) ||
+        v.model.toLowerCase().includes(q) ||
+        String(v.year).includes(q) ||
+        (v.description?.toLowerCase().includes(q) ?? false)
+      )
+    }
+    return true
+  }
+
+  const filtered = useMemo(
+    () => vehicles.filter((v) => v.status === 'for_sale' && matchesFilters(v)),
+    [vehicles, make, minYear, maxYear, maxPrice, search]
+  )
+
+  const specialListings = useMemo(
+    () => vehicles.filter((v) => v.status !== 'for_sale' && matchesFilters(v)),
+    [vehicles, make, minYear, maxYear, maxPrice, search]
+  )
 
   const clearFilters = () => {
     setSearch('')
@@ -152,7 +160,7 @@ export default function InventoryClient({ vehicles, makes }: Props) {
         )}
       </div>
 
-      {/* Grid */}
+      {/* Main inventory grid */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
@@ -161,6 +169,21 @@ export default function InventoryClient({ vehicles, makes }: Props) {
         <div className="text-center py-20 bg-white rounded-xl border border-[#e2e8f0]">
           <p className="text-[#475569] font-medium mb-2">No vehicles match your search</p>
           <button onClick={clearFilters} className="text-sm text-[#EE005A] hover:underline cursor-pointer">Clear filters</button>
+        </div>
+      )}
+
+      {/* Special / As-Is listings */}
+      {specialListings.length > 0 && (
+        <div className="mt-14">
+          <div className="border-t border-[#e2e8f0] pt-10 mb-6">
+            <h2 className="text-xl font-bold text-[#012641]">Also in Our Lot</h2>
+            <p className="text-sm text-[#475569] mt-1">
+              Vehicles with special circumstances — parts cars, pending titles, or project builds. Priced accordingly.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {specialListings.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+          </div>
         </div>
       )}
     </div>

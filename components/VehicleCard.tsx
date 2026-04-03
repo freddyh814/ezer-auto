@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Vehicle } from '@/types'
 import { Gauge, ArrowRight } from 'lucide-react'
 
@@ -13,12 +14,14 @@ export default function VehicleCard({ vehicle, showSaveButton, onSave, isSaved }
   return (
     <div className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden hover:shadow-lg hover:border-[#EE005A]/20 transition-all duration-200 flex flex-col">
       {/* Image */}
-      <div className="relative bg-[#f8fafc] h-48 flex items-center justify-center overflow-hidden">
+      <div className="relative bg-[#f8fafc] h-48 overflow-hidden">
         {vehicle.images && vehicle.images.length > 0 ? (
-          <img
+          <Image
             src={vehicle.images[0]}
             alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
           <div className="flex flex-col items-center gap-2 text-[#94a3b8]">
@@ -35,6 +38,15 @@ export default function VehicleCard({ vehicle, showSaveButton, onSave, isSaved }
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="bg-white text-[#012641] text-sm font-bold px-3 py-1 rounded-full">SOLD</span>
           </div>
+        )}
+        {vehicle.status === 'parts_only' && (
+          <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">PARTS ONLY</div>
+        )}
+        {vehicle.status === 'title_pending' && (
+          <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">TITLE PENDING</div>
+        )}
+        {vehicle.status === 'project' && (
+          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">PROJECT CAR</div>
         )}
       </div>
 

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Vehicle } from '@/types'
 import VehicleCard from '@/components/VehicleCard'
+import HeroCarousel from '@/components/HeroCarousel'
 import { ArrowRight, MapPin, Phone, Wrench, Shield, Star, ExternalLink, CheckCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -26,10 +27,9 @@ const localBusinessSchema = {
   geo: { '@type': 'GeoCoordinates', latitude: 41.2834, longitude: -95.9726 },
   url: 'https://ezerauto.com',
   telephone: '+17202085580',
-  email: 'Contact@theezerkenegdo.com',
+  email: 'Frederick@theezerkenegdo.com',
   openingHoursSpecification: [
-    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: '09:00', closes: '18:00' },
-    { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '10:00', closes: '16:00' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], opens: '08:00', closes: '19:00' },
   ],
 }
 
@@ -64,35 +64,39 @@ export default async function HomePage() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#EE005A] opacity-10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#EE005A] opacity-10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-[#EE005A]/20 border border-[#EE005A]/30 rounded-full px-4 py-1.5 mb-6">
-              <MapPin size={14} className="text-[#EE005A]" aria-hidden="true" />
-              <span className="text-[#EE005A] text-sm font-medium">Omaha, Nebraska</span>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left: text + CTAs */}
+            <div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
+                Your Trusted<br />
+                <span className="text-[#EE005A]">Auto Dealer</span><br />
+                in Omaha
+              </h1>
+              <p className="text-white/70 text-lg leading-relaxed mb-8 max-w-xl">
+                Quality used vehicles and expert service at 3224 N 30th Street. We stand behind every car we sell.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/inventory" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#EE005A] text-white font-semibold rounded-lg hover:bg-[#c4004b] transition-colors duration-200 cursor-pointer">
+                  Browse Inventory <ArrowRight size={18} aria-hidden="true" />
+                </Link>
+                <Link href="/services" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 text-white font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-colors duration-200 cursor-pointer">
+                  Book a Service
+                </Link>
+              </div>
+              <div className="mt-8 flex flex-wrap items-center gap-6 text-white/60 text-sm">
+                <a href="tel:7202085580" className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
+                  <Phone size={14} aria-hidden="true" /> 720-208-5580
+                </a>
+                <span className="flex items-center gap-1.5">
+                  <MapPin size={14} aria-hidden="true" /> 3224 N 30th St
+                </span>
+              </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-5">
-              Your Trusted<br />
-              <span className="text-[#EE005A]">Auto Dealer</span><br />
-              in Omaha
-            </h1>
-            <p className="text-white/70 text-lg leading-relaxed mb-8 max-w-xl">
-              Quality used vehicles and expert service at 3224 N 30th Street. We stand behind every car we sell.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/inventory" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#EE005A] text-white font-semibold rounded-lg hover:bg-[#c4004b] transition-colors duration-200 cursor-pointer">
-                Browse Inventory <ArrowRight size={18} aria-hidden="true" />
-              </Link>
-              <Link href="/services" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 text-white font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-colors duration-200 cursor-pointer">
-                Book a Service
-              </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap items-center gap-6 text-white/60 text-sm">
-              <a href="tel:7202085580" className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
-                <Phone size={14} aria-hidden="true" /> 720-208-5580
-              </a>
-              <span className="flex items-center gap-1.5">
-                <MapPin size={14} aria-hidden="true" /> 3224 N 30th St
-              </span>
+
+            {/* Right: rotating featured inventory */}
+            <div className="w-full">
+              <HeroCarousel vehicles={vehicles} />
             </div>
           </div>
         </div>
@@ -103,7 +107,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-[#012641] mb-4">Omaha&apos;s Neighborhood Dealership</h2>
+              <h2 className="text-3xl font-bold text-[#012641] mb-4">Omaha&apos;s Trusted Neighborhood Dealership</h2>
               <p className="text-[#475569] leading-relaxed mb-4">
                 Ezer Auto was built to give Omaha families access to reliable, affordable vehicles without the pressure. We carefully inspect every car and stand behind every sale.
               </p>
@@ -155,7 +159,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-[#012641]">Service Center</h2>
-            <p className="text-[#475569] mt-2">Expert care for every vehicle, every time</p>
+
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {services.map(({ icon: Icon, title, desc }) => (

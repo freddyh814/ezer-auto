@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Loader } from 'lucide-react'
 
-export default function LoginForm() {
+export default function LoginForm({ next }: { next?: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,7 +22,7 @@ export default function LoginForm() {
       setError(err.message)
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      router.push(next ?? '/dashboard')
       router.refresh()
     }
   }

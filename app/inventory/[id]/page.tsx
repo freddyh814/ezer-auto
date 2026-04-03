@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Vehicle } from '@/types'
 import { ArrowLeft, Gauge, Phone, Mail, CheckCircle } from 'lucide-react'
+import ImageGallery from './ImageGallery'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -37,26 +38,11 @@ export default async function VehicleDetailPage({ params }: Props) {
         </Link>
 
         <div className="bg-white rounded-2xl border border-[#e2e8f0] overflow-hidden">
-          {/* Image */}
-          <div className="bg-[#f1f5f9] h-72 sm:h-96 flex items-center justify-center">
-            {vehicle.images && vehicle.images.length > 0 ? (
-              <img
-                src={vehicle.images[0]}
-                alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center gap-3 text-[#94a3b8]">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-                  <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-3h12l2 3h1a2 2 0 012 2v6a2 2 0 01-2 2h-2" />
-                  <circle cx="7" cy="17" r="2" />
-                  <circle cx="17" cy="17" r="2" />
-                  <path d="M9 17h6" />
-                </svg>
-                <span className="text-sm">Photos coming soon</span>
-              </div>
-            )}
-          </div>
+          {/* Image gallery */}
+          <ImageGallery
+            images={vehicle.images ?? []}
+            alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+          />
 
           <div className="p-6 sm:p-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

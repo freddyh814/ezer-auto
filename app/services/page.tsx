@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import BookingForm from './BookingForm'
 import { Wrench, Shield, Star, CheckCircle, Zap, Settings, Thermometer, Disc } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'Service Center — Book an Appointment',
@@ -18,7 +20,10 @@ const services = [
   { icon: Shield, title: 'Multi-Point Inspection', desc: 'Comprehensive 25-point vehicle inspection — know exactly what your car needs.' },
 ]
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login?next=/services')
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* Header */}

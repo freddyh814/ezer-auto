@@ -15,9 +15,18 @@ export default function Footer() {
               </div>
               <span className="font-bold text-xl">Ezer <span className="text-[#EE005A]">Auto</span></span>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed">
-              Quality used vehicles and expert service in Omaha, Nebraska. Locally owned, community focused.
-            </p>
+            <div className="mt-1 rounded-lg overflow-hidden border border-white/10">
+              <iframe
+                src="https://www.google.com/maps?q=3224+N+30th+Street,+Omaha,+NE+68111&output=embed"
+                width="100%"
+                height="150"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Ezer Auto location"
+              />
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -62,11 +71,11 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:Contact@theezerkenegdo.com"
+                  href="mailto:Frederick@theezerkenegdo.com"
                   className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors cursor-pointer"
                 >
                   <Mail size={15} className="text-[#EE005A]" aria-hidden="true" />
-                  Contact@theezerkenegdo.com
+                  Frederick@theezerkenegdo.com
                 </a>
               </li>
             </ul>
@@ -79,9 +88,7 @@ export default function Footer() {
               <li className="flex items-start gap-2">
                 <Clock size={15} className="mt-0.5 text-[#EE005A]" aria-hidden="true" />
                 <div>
-                  <div>Mon – Fri: 9am – 6pm</div>
-                  <div>Saturday: 10am – 4pm</div>
-                  <div>Sunday: Closed</div>
+                  <div>Mon – Sun: 8am – 7pm</div>
                 </div>
               </li>
             </ul>
