@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Clock, Car, ExternalLink } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, Phone, Mail, Clock, ExternalLink } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -9,23 +10,36 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-[#EE005A] rounded-lg flex items-center justify-center">
-                <Car size={20} className="text-white" aria-hidden="true" />
-              </div>
-              <span className="font-bold text-xl">Ezer <span className="text-[#EE005A]">Auto</span></span>
-            </div>
-            <div className="mt-1 rounded-lg overflow-hidden border border-white/10">
+            {/* Map — clickable, opens Google Maps in new tab */}
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=3224+N+30th+Street,+Omaha,+NE+68111"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mb-4 rounded-xl overflow-hidden border border-white/10 relative cursor-pointer"
+              aria-label="Open Ezer Auto location in Google Maps"
+            >
               <iframe
-                src="https://www.google.com/maps?q=3224+N+30th+Street,+Omaha,+NE+68111&output=embed"
+                src="https://maps.google.com/maps?q=3224+N+30th+St,+Omaha,+NE+68111&output=embed&z=15"
                 width="100%"
-                height="150"
-                style={{ border: 0 }}
-                allowFullScreen
+                height="200"
+                style={{ border: 0, filter: 'grayscale(30%) invert(90%) hue-rotate(180deg) brightness(0.85) contrast(0.9)', pointerEvents: 'none' }}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Ezer Auto location"
               />
+            </a>
+
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <Image
+                src="/EzerAutoLogo.png"
+                alt="Ezer Auto"
+                width={44}
+                height={44}
+                className="h-11 w-auto object-contain"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+              <span className="font-bold text-xl">Ezer <span className="text-[#EE005A]">Auto</span></span>
             </div>
           </div>
 

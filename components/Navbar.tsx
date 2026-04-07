@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Car } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Home' },
@@ -34,9 +35,14 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group" aria-label="Ezer Auto home">
-            <div className="w-9 h-9 bg-[#EE005A] rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-              <Car size={20} className="text-white" aria-hidden="true" />
-            </div>
+            <Image
+              src="/EzerAutoLogo.png"
+              alt="Ezer Auto logo"
+              width={44}
+              height={44}
+              className="h-11 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
             <span className="text-white font-bold text-xl tracking-tight">
               Ezer <span className="text-[#EE005A]">Auto</span>
             </span>
