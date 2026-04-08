@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-import { Menu, X } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Menu, X, User, ChevronDown, LogOut, LayoutDashboard } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 const links = [
   { href: '/', label: 'Home' },
@@ -17,13 +18,46 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [authUser, setAuthUser] = useState<{ email: string } | null>(null)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
   }, [])
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setAuthUser(user ? { email: user.email ?? '' } : null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setAuthUser(session?.user ? { email: session.user.email ?? '' } : null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setAccountOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const signOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setAccountOpen(false)
+    router.push('/')
+    router.refresh()
+  }
 
   return (
     <header
@@ -69,6 +103,45 @@ export default function Navbar() {
             >
               Book Service
             </Link>
+
+            {/* Auth button */}
+            {authUser ? (
+              <div className="relative ml-2" ref={dropdownRef}>
+                <button
+                  onClick={() => setAccountOpen((o) => !o)}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-white/10 text-white text-sm font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-colors duration-200 cursor-pointer"
+                >
+                  <User size={15} aria-hidden="true" />
+                  My Account
+                  <ChevronDown size={13} aria-hidden="true" />
+                </button>
+                {accountOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#e2e8f0] overflow-hidden z-50">
+                    <p className="px-4 py-2.5 text-xs text-[#94a3b8] truncate border-b border-[#e2e8f0]">{authUser.email}</p>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#012641] hover:bg-[#f8fafc] transition-colors cursor-pointer"
+                    >
+                      <LayoutDashboard size={15} aria-hidden="true" /> Dashboard
+                    </Link>
+                    <button
+                      onClick={signOut}
+                      className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer border-t border-[#e2e8f0]"
+                    >
+                      <LogOut size={15} aria-hidden="true" /> Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="ml-2 px-4 py-2 bg-white/10 text-white text-sm font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-colors duration-200 cursor-pointer"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -107,6 +180,31 @@ export default function Navbar() {
               >
                 Book Service
               </Link>
+              {authUser ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors cursor-pointer flex items-center gap-2"
+                  >
+                    <LayoutDashboard size={15} aria-hidden="true" /> Dashboard
+                  </Link>
+                  <button
+                    onClick={() => { setOpen(false); signOut() }}
+                    className="px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-white/10 rounded-md transition-colors cursor-pointer flex items-center gap-2"
+                  >
+                    <LogOut size={15} aria-hidden="true" /> Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="px-4 py-3 bg-white/10 text-white text-sm font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-colors cursor-pointer text-center"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         )}

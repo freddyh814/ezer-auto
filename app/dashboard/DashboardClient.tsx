@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { SavedVehicle, ServiceBooking } from '@/types'
-import { Car, Calendar, Heart, LogOut, ArrowRight, Gauge, Trash2 } from 'lucide-react'
+import { Car, Calendar, Heart, LogOut, ArrowRight, Gauge, Trash2, User, CreditCard, Loader, CheckCircle } from 'lucide-react'
 
 interface Props {
-  user: { email: string }
+  user: { email: string; name: string; phone: string }
   savedVehicles: (SavedVehicle & { vehicle: { id: string; make: string; model: string; year: number; mileage: number; price: number } | null })[]
   bookings: ServiceBooking[]
 }
@@ -20,9 +20,22 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-gray-100 text-gray-500',
 }
 
+const tabs = [
+  { id: 'saved', label: 'Saved Vehicles', icon: Heart },
+  { id: 'bookings', label: 'Appointments', icon: Calendar },
+  { id: 'profile', label: 'My Profile', icon: User },
+  { id: 'payments', label: 'Payments', icon: CreditCard },
+] as const
+
+type Tab = (typeof tabs)[number]['id']
+
 export default function DashboardClient({ user, savedVehicles: initial, bookings }: Props) {
-  const [tab, setTab] = useState<'saved' | 'bookings'>('saved')
+  const [tab, setTab] = useState<Tab>('saved')
   const [saved, setSaved] = useState(initial)
+  const [profile, setProfile] = useState({ name: user.name, phone: user.phone })
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [profileSuccess, setProfileSuccess] = useState(false)
+  const [profileError, setProfileError] = useState('')
   const router = useRouter()
 
   const handleSignOut = async () => {
@@ -32,10 +45,28 @@ export default function DashboardClient({ user, savedVehicles: initial, bookings
     router.refresh()
   }
 
-  const removeSaved = async (id: string, vehicleId: string) => {
+  const removeSaved = async (id: string) => {
     const supabase = createClient()
     await supabase.from('saved_vehicles').delete().eq('id', id)
     setSaved((s) => s.filter((sv) => sv.id !== id))
+  }
+
+  const saveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setProfileLoading(true)
+    setProfileError('')
+    setProfileSuccess(false)
+    const supabase = createClient()
+    const { error } = await supabase.auth.updateUser({
+      data: { name: profile.name.trim(), phone: profile.phone.trim() },
+    })
+    setProfileLoading(false)
+    if (error) {
+      setProfileError('Failed to save. Please try again.')
+    } else {
+      setProfileSuccess(true)
+      setTimeout(() => setProfileSuccess(false), 3000)
+    }
   }
 
   return (
@@ -45,7 +76,8 @@ export default function DashboardClient({ user, savedVehicles: initial, bookings
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div>
             <p className="text-[#EE005A] text-sm font-medium mb-1">Welcome back</p>
-            <h1 className="text-2xl font-bold text-white">{user.email}</h1>
+            <h1 className="text-2xl font-bold text-white">{user.name || user.email}</h1>
+            {user.name && <p className="text-white/50 text-sm mt-0.5">{user.email}</p>}
           </div>
           <button
             onClick={handleSignOut}
@@ -77,23 +109,24 @@ export default function DashboardClient({ user, savedVehicles: initial, bookings
               </div>
               <div>
                 <div className="text-2xl font-bold text-[#012641]">{bookings.length}</div>
-                <div className="text-sm text-[#475569]">Service Appointments</div>
+                <div className="text-sm text-[#475569]">Appointments</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 bg-white rounded-lg border border-[#e2e8f0] p-1 w-fit">
-          {(['saved', 'bookings'] as const).map((t) => (
+        <div className="flex gap-1 mb-6 bg-white rounded-xl border border-[#e2e8f0] p-1 overflow-x-auto">
+          {tabs.map(({ id, label, icon: Icon }) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-150 cursor-pointer ${
-                tab === t ? 'bg-[#012641] text-white' : 'text-[#475569] hover:text-[#012641]'
+              key={id}
+              onClick={() => setTab(id)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer whitespace-nowrap ${
+                tab === id ? 'bg-[#012641] text-white' : 'text-[#475569] hover:text-[#012641]'
               }`}
             >
-              {t === 'saved' ? 'Saved Vehicles' : 'Appointments'}
+              <Icon size={14} aria-hidden="true" />
+              {label}
             </button>
           ))}
         </div>
@@ -130,7 +163,7 @@ export default function DashboardClient({ user, savedVehicles: initial, bookings
                         View
                       </Link>
                       <button
-                        onClick={() => removeSaved(sv.id, sv.vehicle_id)}
+                        onClick={() => removeSaved(sv.id)}
                         className="p-2 text-[#94a3b8] hover:text-red-500 transition-colors cursor-pointer rounded-lg hover:bg-red-50"
                         aria-label="Remove from saved"
                       >
@@ -144,7 +177,7 @@ export default function DashboardClient({ user, savedVehicles: initial, bookings
           </div>
         )}
 
-        {/* Bookings */}
+        {/* Appointments */}
         {tab === 'bookings' && (
           <div>
             {bookings.length === 0 ? (
@@ -177,6 +210,74 @@ export default function DashboardClient({ user, savedVehicles: initial, bookings
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* My Profile */}
+        {tab === 'profile' && (
+          <div className="bg-white rounded-xl border border-[#e2e8f0] p-6 sm:p-8 max-w-lg">
+            <h2 className="text-lg font-bold text-[#012641] mb-6">My Profile</h2>
+            <form onSubmit={saveProfile} className="space-y-5">
+              <div>
+                <label htmlFor="profile-name" className="block text-sm font-semibold text-[#012641] mb-1.5">Full Name</label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={profile.name}
+                  onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+                  className="w-full px-3.5 py-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#EE005A]/30 focus:border-[#EE005A]"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label htmlFor="profile-email" className="block text-sm font-semibold text-[#012641] mb-1.5">Email</label>
+                <input
+                  id="profile-email"
+                  type="email"
+                  value={user.email}
+                  disabled
+                  className="w-full px-3.5 py-3 bg-[#f1f5f9] border border-[#e2e8f0] rounded-lg text-sm text-[#94a3b8] cursor-not-allowed"
+                />
+                <p className="text-xs text-[#94a3b8] mt-1">Email cannot be changed here.</p>
+              </div>
+              <div>
+                <label htmlFor="profile-phone" className="block text-sm font-semibold text-[#012641] mb-1.5">Phone</label>
+                <input
+                  id="profile-phone"
+                  type="tel"
+                  value={profile.phone}
+                  onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
+                  className="w-full px-3.5 py-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#EE005A]/30 focus:border-[#EE005A]"
+                  placeholder="(402) 555-0100"
+                />
+              </div>
+              {profileError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600" role="alert">{profileError}</div>
+              )}
+              {profileSuccess && (
+                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600" role="status">
+                  <CheckCircle size={15} aria-hidden="true" /> Profile saved successfully.
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={profileLoading}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-[#012641] text-white text-sm font-semibold rounded-lg hover:bg-[#023a61] transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {profileLoading ? <><Loader size={15} className="animate-spin" aria-hidden="true" /> Saving…</> : 'Save Changes'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Payments */}
+        {tab === 'payments' && (
+          <div className="bg-white rounded-xl border border-[#e2e8f0] p-12 text-center">
+            <div className="w-16 h-16 bg-[#f1f5f9] rounded-full flex items-center justify-center mx-auto mb-4">
+              <CreditCard size={28} className="text-[#94a3b8]" aria-hidden="true" />
+            </div>
+            <h3 className="text-lg font-bold text-[#012641] mb-2">Payment History</h3>
+            <p className="text-[#475569] text-sm max-w-xs mx-auto">Payment history coming soon. You&apos;ll be able to view invoices and receipts here.</p>
           </div>
         )}
       </div>

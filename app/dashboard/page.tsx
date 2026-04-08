@@ -27,9 +27,15 @@ export default async function DashboardPage() {
       .order('created_at', { ascending: false }),
   ])
 
+  const meta = user.user_metadata as Record<string, string> | undefined
+
   return (
     <DashboardClient
-      user={{ email: user.email ?? '' }}
+      user={{
+        email: user.email ?? '',
+        name: meta?.name ?? '',
+        phone: meta?.phone ?? '',
+      }}
       savedVehicles={savedRaw ?? []}
       bookings={bookingsRaw ?? []}
     />

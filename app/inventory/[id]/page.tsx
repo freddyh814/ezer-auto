@@ -6,6 +6,7 @@ import type { Vehicle } from '@/types'
 import { parseImages } from '@/lib/parseImages'
 import { ArrowLeft, Gauge, Phone, Mail, CheckCircle } from 'lucide-react'
 import ImageGallery from './ImageGallery'
+import SaveButton from './SaveButton'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -30,6 +31,18 @@ export default async function VehicleDetailPage({ params }: Props) {
 
   if (!data) notFound()
   const vehicle = { ...data, images: parseImages((data as Record<string, unknown>).images as string[]) } as Vehicle
+
+  const { data: { user } } = await supabase.auth.getUser()
+  let savedId: string | null = null
+  if (user) {
+    const { data: sv } = await supabase
+      .from('saved_vehicles')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('vehicle_id', id)
+      .maybeSingle()
+    savedId = sv?.id ?? null
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -59,11 +72,17 @@ export default async function VehicleDetailPage({ params }: Props) {
                       <span>{vehicle.mileage.toLocaleString()} miles</span>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end gap-2">
                     <div className="text-3xl font-bold text-[#EE005A]">${vehicle.price.toLocaleString()}</div>
-                    <div className={`mt-1 text-sm font-medium ${vehicle.available ? 'text-green-600' : 'text-[#94a3b8]'}`}>
+                    <div className={`text-sm font-medium ${vehicle.available ? 'text-green-600' : 'text-[#94a3b8]'}`}>
                       {vehicle.available ? '✓ Available' : 'Sold'}
                     </div>
+                    <SaveButton
+                      vehicleId={vehicle.id}
+                      initialSaved={savedId !== null}
+                      savedId={savedId}
+                      isLoggedIn={!!user}
+                    />
                   </div>
                 </div>
 
