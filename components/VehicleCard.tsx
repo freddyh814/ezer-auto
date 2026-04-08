@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Vehicle } from '@/types'
 import { Gauge, ArrowRight } from 'lucide-react'
+import { getFirstImage } from '@/lib/parseImages'
 
 interface Props {
   vehicle: Vehicle
@@ -11,13 +12,14 @@ interface Props {
 }
 
 export default function VehicleCard({ vehicle, showSaveButton, onSave, isSaved }: Props) {
+  const imageUrl = getFirstImage(vehicle.images)
   return (
     <div className="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden hover:shadow-lg hover:border-[#EE005A]/20 transition-all duration-200 flex flex-col">
       {/* Image */}
       <div className="relative bg-[#f8fafc] h-48 overflow-hidden">
-        {vehicle.images && vehicle.images.length > 0 ? (
+        {imageUrl ? (
           <Image
-            src={vehicle.images[0]}
+            src={imageUrl}
             alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
             fill
             className="object-cover"

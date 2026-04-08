@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Vehicle } from '@/types'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+import { getFirstImage } from '@/lib/parseImages'
 
 interface Props {
   vehicles: Vehicle[]
@@ -31,7 +32,7 @@ export default function HeroCarousel({ vehicles }: Props) {
   if (vehicles.length === 0) return null
 
   const vehicle = vehicles[current]
-  const hasImage = vehicle.images && vehicle.images.length > 0
+  const imageUrl = getFirstImage(vehicle.images)
 
   return (
     <div
@@ -40,9 +41,9 @@ export default function HeroCarousel({ vehicles }: Props) {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image */}
-      {hasImage ? (
+      {imageUrl ? (
         <Image
-          src={vehicle.images[0]}
+          src={imageUrl}
           alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
           fill
           className="object-cover transition-opacity duration-500"
