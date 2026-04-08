@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Vehicle } from '@/types'
+import { parseImages } from '@/lib/parseImages'
 import VehicleCard from '@/components/VehicleCard'
 import HeroCarousel from '@/components/HeroCarousel'
 import { ArrowRight, MapPin, Phone, Wrench, Shield, Star, ExternalLink, CheckCircle } from 'lucide-react'
@@ -49,7 +50,7 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
     .limit(3)
 
-  const vehicles = (featured ?? []) as Vehicle[]
+  const vehicles = (featured ?? []).map(v => ({ ...v, images: parseImages(v.images as string[]) })) as Vehicle[]
 
   return (
     <>

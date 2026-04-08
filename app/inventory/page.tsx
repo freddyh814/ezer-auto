@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import type { Vehicle } from '@/types'
+import { parseImages } from '@/lib/parseImages'
 import InventoryClient from './InventoryClient'
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export default async function InventoryPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  const vehicles = (data ?? []) as Vehicle[]
+  const vehicles = (data ?? []).map(v => ({ ...v, images: parseImages(v.images as string[]) })) as Vehicle[]
   const makes = [...new Set(vehicles.map((v) => v.make))].sort()
 
   return (

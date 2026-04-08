@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Vehicle } from '@/types'
+import { parseImages } from '@/lib/parseImages'
 import { ArrowLeft, Gauge, Phone, Mail, CheckCircle } from 'lucide-react'
 import ImageGallery from './ImageGallery'
 
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient()
   const { data } = await supabase.from('vehicles').select('*').eq('id', id).single()
   if (!data) return { title: 'Vehicle Not Found' }
-  const v = data as Vehicle
+  const v = { ...data, images: parseImages((data as Record<string, unknown>).images as string[]) } as Vehicle
   return {
     title: `${v.year} ${v.make} ${v.model} — $${v.price.toLocaleString()}`,
     description: v.description ?? `${v.year} ${v.make} ${v.model} with ${v.mileage.toLocaleString()} miles. Available at Ezer Auto Omaha.`,
@@ -28,7 +29,7 @@ export default async function VehicleDetailPage({ params }: Props) {
   const { data } = await supabase.from('vehicles').select('*').eq('id', id).single()
 
   if (!data) notFound()
-  const vehicle = data as Vehicle
+  const vehicle = { ...data, images: parseImages((data as Record<string, unknown>).images as string[]) } as Vehicle
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
