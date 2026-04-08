@@ -64,7 +64,7 @@ export default async function HomePage() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#EE005A] opacity-10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#EE005A] opacity-10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Left: text + CTAs */}
             <div>
@@ -73,7 +73,7 @@ export default async function HomePage() {
                 <span className="text-[#EE005A]">Auto Dealer</span><br />
                 in Omaha
               </h1>
-              <p className="text-white/70 text-lg leading-relaxed mb-8 max-w-xl">
+              <p className="text-white/70 text-lg leading-relaxed mb-6 max-w-xl">
                 Quality used vehicles and expert service at 3224 N 30th Street. We stand behind every car we sell.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -84,7 +84,7 @@ export default async function HomePage() {
                   Book a Service
                 </Link>
               </div>
-              <div className="mt-8 flex flex-wrap items-center gap-6 text-white/60 text-sm">
+              <div className="mt-5 flex flex-wrap items-center gap-6 text-white/60 text-sm">
                 <a href="tel:7202085580" className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
                   <Phone size={14} aria-hidden="true" /> 720-208-5580
                 </a>

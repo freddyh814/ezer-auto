@@ -24,7 +24,7 @@ export default function HeroCarousel({ vehicles }: Props) {
 
   useEffect(() => {
     if (isHovered || vehicles.length <= 1) return
-    const timer = setInterval(next, 5000)
+    const timer = setInterval(next, 4000)
     return () => clearInterval(timer)
   }, [isHovered, next, vehicles.length])
 
@@ -67,6 +67,9 @@ export default function HeroCarousel({ vehicles }: Props) {
         <h3 className="text-white font-bold text-xl leading-tight mb-1">
           {vehicle.year} {vehicle.make} {vehicle.model}
         </h3>
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-white/60 text-xs">{vehicle.mileage.toLocaleString()} mi</span>
+        </div>
         <div className="flex items-center justify-between">
           <span className="text-white text-2xl font-bold">${vehicle.price.toLocaleString()}</span>
           <Link
